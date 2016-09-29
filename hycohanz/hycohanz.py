@@ -22,13 +22,13 @@ from hycohanz.appobject import setup_interface
 
 from hycohanz.desktop import (quit_application, 
                               new_project, 
-                              open_project, 
-                              close_project_byname, 
-                              get_active_project, 
-                              close_project_byhandle, 
-                              close_current_project, 
-                              get_projects, 
-                              close_all_projects, 
+                              open_project,
+                              close_project_byname,
+                              get_active_project,
+                              close_project_byhandle,
+                              close_current_project,
+                              get_projects,
+                              close_all_projects,
                               close_all_projects_except_current)
 
 from hycohanz.project import *
@@ -37,7 +37,7 @@ from hycohanz.property import ( add_property,
                                 set_variable,
                                 )
 
-from hycohanz.design import (get_module, 
+from hycohanz.design import (get_module,
                              set_active_editor)
 
 from hycohanz.expression import Expression
@@ -46,19 +46,27 @@ from hycohanz.material import ( add_material,
                                 does_material_exist,
                                 )
 
-from hycohanz.analysis_setup import (insert_frequency_sweep, 
-                                     insert_analysis_setup)
+from hycohanz.analysis_setup import (insert_frequency_sweep,
+                                     insert_analysis_setup,
+                                     get_setups,
+                                     get_sweeps)
 
-from hycohanz.boundarysetup import (assign_perfect_e, 
+from hycohanz.boundarysetup import (assign_perfect_e,
                                     assign_radiation,
                                     assign_perfect_h,
                                     assign_waveport_multimode)
-                                    
-from hycohanz.fieldscalculator import (enter_vol, 
-                                       calc_op, 
-                                       clc_eval, 
-                                       enter_qty, 
+
+from hycohanz.fieldscalculator import (enter_vol,
+                                       calc_op,
+                                       clc_eval,
+                                       enter_qty,
                                        get_top_entry_value)
+
+from hycohanz.reporter import  (export_to_file,
+                                get_all_report_names,
+                                create_report,
+                                add_traces,
+                                rename_trace)
 
 class App():
     """
@@ -96,7 +104,7 @@ class App():
         3. The only methods guaranteed to be run in a 'with'-block 
            are __enter__() at entry, and __exit() at exit.
         """
-        quit_application(self.oDesktop)
+        #quit_application(self.oDesktop)
         del self.oDesktop
         del self.oAnsoftApp
         
@@ -117,7 +125,7 @@ class OpenProject():
         return self
         
     def __exit__(self, typ, val, traceback):
-        close_project_byhandle(self.oDesktop, self.oProject)
+        #close_project_byhandle(self.oDesktop, self.oProject)
         
         del self.oProject
         del self.oDesktop
@@ -135,7 +143,7 @@ class NewProject():
         return self
         
     def __exit__(self, typ, val, traceback):
-        close_project_byhandle(self.oDesktop, self.oProject)
+        #close_project_byhandle(self.oDesktop, self.oProject)
         
         del self.oProject
         del self.oDesktop

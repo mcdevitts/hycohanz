@@ -12,8 +12,15 @@ from __future__ import division, print_function, unicode_literals, absolute_impo
 import warnings
 
 from hycohanz.expression import Expression as Ex
+from . import utils
 
 warnings.simplefilter('default')
+
+DEFAULT_ATTRIBUTES = {
+    'partCoordinateSystem':     'Global',
+    'materialName':             'vacuum',
+    'solveInside':              'True',
+}
 
 def get_matched_object_name(oEditor, name_filter="*"):
     """
@@ -62,25 +69,47 @@ def assign_material(oEditor, partlist, MaterialName="vacuum", SolveInside=True):
     
     oEditor.AssignMaterial(selectionsarray, attributesarray)
 
-def create_rectangle(   oEditor, 
-                        xs, 
-                        ys, 
-                        zs, 
-                        width, 
-                        height, 
-                        WhichAxis='Z', 
-                        Name='Rectangle1', 
-                        Flags='', 
-                        Color=(132, 132, 193), 
-                        Transparency=0, 
-                        PartCoordinateSystem='Global',
-                        UDMId='',
-                        MaterialValue='"vacuum"',
-                        SolveInside=True,
-                        IsCovered=True):
+
+def create_relative_cs(comObj, originX, originY, originZ, xAxisXvec, xAxisYvec, xAxisZvec, yAxisXvec, yAxisYvec,
+                        yAxisZvec, **attributes):
+    """
+
+    :param comObj:
+    :param originX:
+    :param originY:
+    :param originZ:
+    :param xAxisXvec:
+    :param xAxisYvec:
+    :param xAxisZvec:
+    :param yAxisXvec:
+    :param yAxisYvec:
+    :param yAxisZvec:
+    :param attributes:
+    :return:
+    """
+    parameters = locals()
+    parameters_name = 'RelativeCSParameters'
+    function_name = 'CreateRelativeCS'
+
+    for k,v in DEFAULT_ATTRIBUTES.items():
+        if k not in attributes:
+            attributes[k] = v
+
+    return utils.hfss_com_wrapper(comObj, parameters, attributes, parameters_name, function_name)
+
+    
+def set_working_cs(comObj, working_coordinate_system):
+    parameters = locals()
+    parameters_name = 'SetWCS Parameter'
+    function_name = 'SetWCS'
+
+    return utils.hfss_com_wrapper(comObj, parameters, None, parameters_name, function_name)
+
+
+def create_rectangle(comObj, xStart, yStart, zStart, width, height, whichAxis='z', **attributes):
     """
     Draw a rectangle.
-    
+
     Parameters
     ----------
     oEditor : pywin32 COMObject
@@ -96,7 +125,7 @@ def create_rectangle(   oEditor,
     WhichAxis : str
         The axis normal to the circle.  Can be 'X', 'Y', or 'Z'.
     Name : str
-        The requested name of the object.  If this is not available, HFSS 
+        The requested name of the object.  If this is not available, HFSS
         will assign a different name, which is returned by this function.
     Flags : str
         Flags associated with this object.  See HFSS Scripting Guide for details.
@@ -107,41 +136,41 @@ def create_rectangle(   oEditor,
     PartCoordinateSystem : str
         The name of the coordinate system in which the object is drawn.
     MaterialName : str
-        Name of the material to assign to the object.  Name must be surrounded 
+        Name of the material to assign to the object.  Name must be surrounded
         by double quotes.
     SolveInside : bool
-        Whether to mesh the interior of the object and solve for the fields 
+        Whether to mesh the interior of the object and solve for the fields
         inside.
     IsCovered : bool
         Whether the rectangle is has a surface or has only edges.
-        
+
     Returns
     -------
     str
         The actual name of the created object.
-        
     """
-    RectangleParameters = [ "NAME:RectangleParameters",
-                            "IsCovered:=", IsCovered,
-                            "XStart:=", Ex(xs).expr,
-                            "YStart:=", Ex(ys).expr,
-                            "ZStart:=", Ex(zs).expr,
-                            "Width:=", Ex(width).expr,
-                            "Height:=", Ex(height).expr,
-                            "WhichAxis:=", WhichAxis]
+    parameters = locals()
+    parameters_name = 'RectangleParameters'
+    function_name = 'CreateRectangle'
 
-    Attributes = [  "NAME:Attributes",
-                    "Name:=", Name,
-                    "Flags:=", Flags,
-                    "Color:=", "({r} {g} {b})".format(r=Color[0], g=Color[1], b=Color[2]),
-                    "Transparency:=", Transparency,
-                    "PartCoordinateSystem:=", PartCoordinateSystem,
-                    "UDMId:=", UDMId,
-                    "MaterialValue:=", MaterialValue,
-                    "SolveInside:=", SolveInside]
-                    
-    return oEditor.CreateRectangle(RectangleParameters, Attributes)
+    for k,v in DEFAULT_ATTRIBUTES.items():
+        if k not in attributes:
+            attributes[k] = v
 
+    return utils.hfss_com_wrapper(comObj, parameters, attributes, parameters_name, function_name)
+
+
+def create_cylinder(comObj, xCenter, yCenter, zCenter, radius, height, whichAxis='z', numSides=10, **attributes):
+
+    parameters = locals()
+    parameters_name = 'CylinderParameters'
+    function_name = 'CreateCylinder'
+
+    for k, v in DEFAULT_ATTRIBUTES.items():
+        if k not in attributes:
+            attributes[k] = v
+
+    return utils.hfss_com_wrapper(comObj, parameters, attributes, parameters_name, function_name)
 
 def create_EQbasedcurve(   oEditor, 
                         xt, 
@@ -272,10 +301,10 @@ def create_circle(oEditor, xc, yc, zc, radius,
         The actual name of the created object.
     """
     circleparams = ["NAME:CircleParameters", 
-                    "XCenter:=", Ex(xc).expr, 
-                    "YCenter:=", Ex(yc).expr, 
-                    "ZCenter:=", Ex(zc).expr, 
-                    "Radius:=", Ex(radius).expr, 
+                    "XCenter:=", Ex(xc).expr,
+                    "YCenter:=", Ex(yc).expr,
+                    "ZCenter:=", Ex(zc).expr,
+                    "Radius:=", Ex(radius).expr,
                     "WhichAxis:=", str(WhichAxis), 
                     "NumSegments:=", str(NumSegments)]
 
@@ -340,9 +369,9 @@ def create_sphere(oEditor, x, y, z, radius,
         
     """
     sphereparametersarray = ["NAME:SphereParameters", 
-                             "XCenter:=", Ex(x).expr, 
-                             "YCenter:=", Ex(y).expr, 
-                             "ZCenter:=", Ex(z).expr, 
+                             "XCenter:=", Ex(x).expr,
+                             "YCenter:=", Ex(y).expr,
+                             "ZCenter:=", Ex(z).expr,
                              "Radius:=", Ex(radius).expr]
     
     attributesarray = ["NAME:Attributes", 
@@ -358,6 +387,7 @@ def create_sphere(oEditor, x, y, z, radius,
     part = oEditor.CreateSphere(sphereparametersarray, attributesarray)
     
     return part
+
 
 def create_box( oEditor, 
                 xpos, 
@@ -667,8 +697,8 @@ def move(oEditor, partlist, x, y, z, NewPartsModelFlag="Model"):
                        "NewPartsModelFlag:=", NewPartsModelFlag]
                       
     moveparametersarray = ["NAME:TranslateParameters", 
-                           "TranslateVectorX:=", str(Ex(x).expr), 
-                           "TranslateVectorY:=", str(Ex(y).expr), 
+                           "TranslateVectorX:=", str(Ex(x).expr),
+                           "TranslateVectorY:=", str(Ex(y).expr),
                            "TranslateVectorZ:=", str(Ex(z).expr)]
     
     oEditor.Move(selectionsarray, moveparametersarray)
@@ -808,8 +838,8 @@ def sweep_along_vector(oEditor, obj_name_list, x, y, z):
                               "DraftAngle:=", "0deg", 
                               "DraftType:=", "Round", 
                               "CheckFaceFaceIntersection:=", False, 
-                              "SweepVectorX:=", Ex(x).expr, 
-                              "SweepVectorY:=", Ex(y).expr, 
+                              "SweepVectorX:=", Ex(x).expr,
+                              "SweepVectorY:=", Ex(y).expr,
                               "SweepVectorZ:=", Ex(z).expr])
 
     return get_selections(oEditor)
@@ -1110,7 +1140,7 @@ def fillet(oEditor, partlist, edgelist, radius, vertexlist=[], setback=0):
     tempparams = ["NAME:FilletParameters", 
                   "Edges:=", edgelist, 
                   "Vertices:=", vertexlist, 
-                  "Radius:=",  Ex(radius).expr, 
+                  "Radius:=",  Ex(radius).expr,
                   "Setback:=", str(setback)]
     
     filletparameters = ["NAME:Parameters", tempparams]

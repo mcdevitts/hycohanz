@@ -23,7 +23,7 @@ def setup_interface():
     
     Examples
     --------
-    >>> import Hyphasis as hfss
+    >>> import hycohanz as hfss
     >>> [oAnsoftApp, oDesktop] = hfss.setup_interface()
     
     """
@@ -31,7 +31,12 @@ def setup_interface():
     # existing HFSS process instead of creating a new one.  I would highly 
     # prefer that a new process is created.  Apparently 
     # win32com.client.DispatchEx() doesn't work here either.
-    oAnsoftApp = win32com.client.Dispatch('AnsoftHfss.HfssScriptInterface')
+
+    # Point win32com at the proper install of HFSS if there are multiple on the computer!
+
+
+    oAnsoftApp = win32com.client.Dispatch('AnsoftHfss.HfssScriptInterface.13.0')
+    #oAnsoftApp = win32com.client.Dispatch('AnsoftHfss.HfssScriptInterface')
 
     oDesktop = oAnsoftApp.GetAppDesktop()
 
