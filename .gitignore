@@ -45,6 +45,7 @@ Temporary Items
 # Compiled python folders and files
 __pycache__/
 *.pyc
+*.egg-info
 
 # IDE folders and files
 .idea/
