@@ -8,6 +8,7 @@ At last count there were 1 functions implemented out of 15.
 """
 from __future__ import division, print_function, unicode_literals, absolute_import
 
+import pywintypes
 import win32com.client
 
 def setup_interface():
@@ -34,9 +35,10 @@ def setup_interface():
 
     # Point win32com at the proper install of HFSS if there are multiple on the computer!
 
-
-    oAnsoftApp = win32com.client.Dispatch('AnsoftHfss.HfssScriptInterface.13.0')
-    #oAnsoftApp = win32com.client.Dispatch('AnsoftHfss.HfssScriptInterface')
+    try:
+        oAnsoftApp = win32com.client.Dispatch('AnsoftHfss.HfssScriptInterface')
+    except pywintypes.com_error:
+        oAnsoftApp = win32com.client.Dispatch('AnsoftHfss.HfssScriptInterface.13.0')
 
     oDesktop = oAnsoftApp.GetAppDesktop()
 
